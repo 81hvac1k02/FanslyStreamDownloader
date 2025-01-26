@@ -33,3 +33,4 @@ All these variables can either be supplied through a .env file, as enviroment va
 
 ## TODO 
 fix downloading on Windows 
+add Tests

@@ -54,6 +54,10 @@ func main() {
 	flag.StringVar(&envFile, "env", ".env", "Path to .env file")
 	flag.BoolVar(&userData.Metadata, "metadata", false, "Download metadata y/N")
 	flag.Parse()
+	if len(flag.Args()) == 0 {
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	// Handle username from positional argument
 	if userData.FanslyCreator == "" && len(flag.Args()) > 0 {
