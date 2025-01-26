@@ -3,13 +3,36 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/81hvac1k02/FanslyStreamDownloader/fansly"
 )
+
+func parseURl(rawURL string) string {
+
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		fmt.Println("Error parsing URL:", err)
+		return ""
+	}
+
+	// Split the path into segments
+	pathSegments := strings.Split(parsedURL.Path, "/")
+
+	// The last segment should be the part you want
+	if len(pathSegments) > 0 {
+		desiredPart := pathSegments[len(pathSegments)-1]
+		return desiredPart
+	} else {
+		fmt.Println("No path segments found")
+	}
+	return ""
+}
 
 // loadEnv reads a file and sets the environment variables
 func loadEnv(filePath string) error {
@@ -47,7 +70,7 @@ func main() {
 	userData := fansly.UserData{}
 	var envFile string
 	// Define command line flags
-	flag.StringVar(&userData.FanslyCreator, "name", "", "Creator's username to download stream from")
+	flag.StringVar(&userData.FanslyCreator, "name", "", "Creator's username or the url download stream from")
 	flag.StringVar(&userData.FanslyToken, "token", "", "Fansly authentication token")
 	flag.StringVar(&userData.UserAgent, "agent", "", "User agent string")
 	flag.StringVar(&userData.BasePath, "path", "", "Base path for downloads")
@@ -62,6 +85,9 @@ func main() {
 	// Handle username from positional argument
 	if userData.FanslyCreator == "" && len(flag.Args()) > 0 {
 		userData.FanslyCreator = flag.Args()[0]
+	}
+	if strings.Contains(userData.FanslyCreator, "https://fansly.com/") {
+		userData.FanslyCreator = parseURl(userData.FanslyCreator)
 	}
 
 	if userData.FanslyCreator == "" {
